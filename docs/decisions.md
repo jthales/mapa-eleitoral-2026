@@ -228,3 +228,9 @@ Accepted — 2026-10-07. Usuário autorizou substituir demonstração por nomes/
 Accepted — 2026-10-07. A pedido do usuário, segundo turno passa a alvo de 10s entre inícios de coletas bem-sucedidas, stale após 30s. Worker mantém execução sequencial: uma coleta lenta ou coleta do primeiro turno pode atrasar o próximo início; não há sobreposição ou fila de ciclos perdidos. Interface consulta cache a cada 5s no segundo turno; primeiro mantém 30s na UI e 600s upstream. Backoff de falhas permanece 600s.
 
 TSE confirma 100 requisições/s/IP, com possível bloqueio por excesso ou 404 repetidos. 29 arquivos/ciclo equivalem nominalmente a 2,9 requisições/s em média; espaçamento sequencial 150ms preservado, fotos/retries adicionais. Essa configuração não garante atualização ponta a ponta em 10s, pois depende de publicação/CDN, duração de coleta e polling. Cache segue por processo, sem teste de carga ou coordenação de réplicas.
+
+## ADR-015 - Hospedar Angular e .NET na Vercel
+
+Accepted — 2026-10-07, por solicitação do usuário. Usar Container Images (beta) no plano Hobby, preservando a stack: build Angular/Node 24 e publish .NET 10 em Dockerfile.vercel; ASP.NET serve wwwroot e API na mesma origem. Projeto conectado ao GitHub privado, branch main. PORT=8080; /health/live separado da saúde dos snapshots; fallback SPA não encobre 404 de /api/.
+
+Build remoto e acesso público foram verificados. Esta decisão é de hospedagem inicial, não resolve coordenação de réplicas: cache e worker continuam por instância e podem desaparecer com scale down. A independência entre visitantes e chamadas TSE registrada anteriormente vale dentro de cada instância; autoscaling pode multiplicar coletas. Redis/coordenação e validação de coleta contínua permanecem pendentes. Nenhum plano pago contratado. Fontes e procedimento em deployment.md.

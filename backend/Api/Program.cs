@@ -4,6 +4,9 @@ using Election.Infrastructure;
 using Election.Infrastructure.Tse;
 
 var builder = WebApplication.CreateBuilder(args);
+// Container platforms supply PORT; local development keeps appsettings.json's URL.
+if (int.TryParse(Environment.GetEnvironmentVariable("PORT"), out var port) && port is > 0 and <= 65535)
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 builder.Services.AddProblemDetails();
 builder.Services.AddOptions<ElectionOptions>().BindConfiguration("Election")
     .Validate(o => o.RefreshIntervalSeconds >= 10 && o.StaleAfterSeconds >= o.RefreshIntervalSeconds &&
@@ -35,6 +38,8 @@ builder.Services.AddSingleton<IElectionProvider, ConfiguredElectionProvider>();
 builder.Services.AddHostedService<ElectionUpdateWorker>();
 
 var app = builder.Build();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.UseExceptionHandler();
 app.Use(async (context, next) =>
 {
@@ -71,6 +76,9 @@ app.MapGet("/api/election/candidates/{candidateId}/photo", (string candidateId, 
 app.MapGet("/health", (int? round, IElectionCache cache) => round is not (null or 1 or 2) ? InvalidRound() : cache.Read(round ?? 2) is { } entry
     ? Results.Ok(new { status = entry.IsStale ? "degraded" : "ok", source = entry.Snapshot.Source })
     : Results.Problem(statusCode: 503, title: "Aguardando primeiro snapshot"));
+app.MapGet("/api/{**path}", () => Results.NotFound());
+app.MapGet("/health/live", () => Results.Ok(new { status = "ok" }));
+app.MapFallbackToFile("index.html");
 app.Run();
 
 static IResult InvalidRound() => Results.Problem(statusCode: 400, title: "Turno inválido", detail: "Informe round=1 ou round=2.");

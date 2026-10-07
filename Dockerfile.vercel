@@ -1,0 +1,21 @@
+FROM node:24-bookworm-slim AS frontend
+WORKDIR /src/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS backend
+WORKDIR /src
+COPY global.json ./
+COPY backend/ ./backend/
+RUN dotnet publish backend/Api/Api.csproj -c Release -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
+COPY --from=backend /app/publish ./
+COPY --from=frontend /src/frontend/dist/frontend/browser ./wwwroot/
+ENV PORT=8080 ASPNETCORE_ENVIRONMENT=Production AllowedHosts=* DOTNET_EnableDiagnostics=0
+EXPOSE 8080
+USER $APP_UID
+ENTRYPOINT ["dotnet", "Api.dll"]

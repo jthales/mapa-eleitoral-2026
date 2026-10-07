@@ -21,14 +21,14 @@
 - Arquivos principais: backend/Api/Program.cs, Application/Contracts.cs, Infrastructure/Tse/, Infrastructure/ElectionUpdateWorker.cs, frontend/src/app/features/ e scripts/generate-map.mjs.
 
 ## In progress
-- Nenhuma tarefa de implementação parcialmente aplicada. Base do MVP concluída; limitações abaixo permanecem explícitas.
+- Hospedagem Vercel publicada em https://mapa-eleitoral-2026-omega.vercel.app; configuração e limitações registradas em docs/deployment.md.
 - Ambiente local de preview iniciado durante a sessão: API 5080 e frontend 4200; processos não são serviço persistente.
 
 ## Pending
 - Validar resultados efetivos do segundo turno e revalidar layouts/configuração quando publicados.
 - Confirmar documentalmente o fuso dos horários de geração do TSE.
 - Registrar licença específica de redistribuição da malha IBGE; fonte/derivação estão registradas, sem atribuir licença não verificada.
-- Municípios, Redis, SSE/WebSocket, histórico, carga/observabilidade operacional e deploy.
+- Municípios, Redis, SSE/WebSocket, histórico e carga/observabilidade operacional. Na Vercel, coordenar cache/coleta entre réplicas antes de uso com alto tráfego.
 - Recuperar RTK.md, se disponível.
 
 ## Known issues
@@ -38,7 +38,8 @@
 - SourceUtcOffsetMinutes=-180 é hipótese operacional configurável, não confirmação documental do fuso TSE.
 - A política fresh/stale mede sucesso/recência da consulta; dados oficialmente finalizados podem ter geração antiga e continuar fresh.
 - Mapa simplificado, sem municípios e sem tratamento cartográfico especializado de pequenas UFs; tabela é alternativa acessível.
-- RTK.md não encontrado. Git inicializado em main; origin privado: https://github.com/jthales/mapa-eleitoral-2026. Publicação do site ainda não realizada.
+- RTK.md não encontrado. Git em main; origin privado: https://github.com/jthales/mapa-eleitoral-2026. Vercel Hobby conectado ao GitHub, Angular/API em um container; ver docs/deployment.md.
+- Vercel escala/encerra instâncias: coleta permanente a cada 10s e consulta única global não são garantidas. Cache/worker permanecem por processo; inicialização pode responder 503 até aquecer.
 - Falha anterior do sandbox não ocorreu nesta sessão. SDK local instalado em .tools/dotnet (ignorado); Node usa certificados do sistema quando necessário.
 
 ## TSE integration status
@@ -54,6 +55,7 @@
 - Frontend identifica demonstração no topo e junto à fonte. Fixtures oficiais dos testes não são servidas pelo mock.
 
 ## Tests
+- Deploy: 15 testes backend aprovados, publish .NET Release e build Angular aprovados, build Docker remoto Vercel concluído. Smoke local validou SPA/deep links, API, 400/404 e liveness. URL pública respondeu com primeiro turno oficial; Chromium validou classificados/fotos, 27 UFs neutras, detalhes, mobile e retorno ao primeiro turno, sem erros JavaScript. Sem teste de carga ou garantia de agendamento contínuo na plataforma.
 - Backend: build sem avisos/erros; 15 testes xUnit aprovados.
 - Angular: build de produção aprovado; 12 testes Vitest em 4 arquivos aprovados. Reexecutados após a paleta por partido; smoke Chromium confirmou cores nos cards e mapa. Nova alteração inclui projeção de classificados em Application/TseElectionService e métricas nullable nos DTOs.
 - Cobertura comportamental: parsing real, valores inválidos, voto não divulgado, status oficial, round/configuração, percentuais/margem, mock, cache/stale, retry/404 e endpoints.
@@ -70,4 +72,4 @@
 - Comandos reproduzíveis no README. Scripts temporários de verificação ficam em tmp, fora de versionamento.
 
 ## Next recommended task
-- Revalidar o EA20 de segundo turno quando disponível, confirmar fuso e testar início de apuração/dados parciais em ambiente oficial. Antes de publicar, fechar proveniência/licença da geometria e configuração de hospedagem.
+- Adotar coordenação de coleta/cache compartilhado e medir cold start/carga na hospedagem. Revalidar EA20 do segundo turno, confirmar fuso e fechar licença específica da geometria.

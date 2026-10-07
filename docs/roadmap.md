@@ -62,7 +62,8 @@
 - [ ] Decidir se SSE/WebSocket traz benefício suficiente para substituir polling.
 - [ ] Avaliar Redis/coordenação de réplicas conforme necessidade.
 - [ ] Instrumentar métricas, alertas e testes de carga/falha prolongada.
-- [ ] Preparar hospedagem, proxy de produção, HTTPS e observabilidade.
+- [x] Publicar Angular/API na Vercel Hobby com HTTPS e GitHub conectado.
+- [ ] Completar observabilidade e validar carga/cold start; coordenar worker/cache entre réplicas.
 
 ## Phase 5 - Pós eleição
 

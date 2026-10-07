@@ -89,7 +89,7 @@ Angular → API → cache. O worker consulta EA11/EA20, valida e normaliza os da
 
 `fresh` significa consulta recente bem-sucedida; não garante uma geração nova no TSE. `updatedAt` preserva a geração do arquivo. Sem cache inicial a API retorna 503; uma falha posterior mantém dados e sinaliza defasagem. Uma falha em qualquer UF impede publicar todo o novo snapshot; veja [arquitetura](docs/architecture.md).
 
-Municípios, Redis, SSE/WebSocket, histórico, testes de carga e deploy ainda não foram implementados. A interpretação do fuso do horário TSE é uma hipótese configurável documentada. Ver [estado atual](docs/current-status.md).
+Site: https://mapa-eleitoral-2026-omega.vercel.app. Angular/API publicados em um container na Vercel Hobby, com GitHub conectado; detalhes e limitações em [hospedagem](docs/deployment.md). Municípios, Redis, SSE/WebSocket, histórico e testes de carga ainda não foram implementados. A interpretação do fuso do horário TSE é uma hipótese configurável documentada. Ver [estado atual](docs/current-status.md).
 
 ## Fontes e neutralidade
 

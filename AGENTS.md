@@ -24,7 +24,7 @@ Em frontend: `npm ci`, `npm start`, `npm run build`, `npm test`. API em localhos
 
 Formatação: `dotnet format backend/Election.slnx`; em frontend, `npx --no-install prettier --write "src/**/*.{ts,html,scss}"`. Regenerar mapa na raiz: `node scripts/generate-map.mjs`.
 
-Não versionar .tools, tmp, node_modules, bin, obj, dist, segredos ou logs. Git em main, origin privado https://github.com/jthales/mapa-eleitoral-2026. Repositório criado; hospedagem do site ainda não configurada. Não alterar fixtures oficiais para fazer testes passarem.
+Não versionar .tools, tmp, node_modules, bin, obj, dist, .vercel, .env*, segredos ou logs. Git em main, origin privado https://github.com/jthales/mapa-eleitoral-2026. Vercel Hobby conectado ao GitHub; ver docs/deployment.md. Não alterar fixtures oficiais para fazer testes passarem.
 
 ## Arquitetura e integração
 
@@ -55,7 +55,7 @@ Seguir [docs/conventions.md](docs/conventions.md). Manter abreviações TSE isol
 
 ## Implementado e limitações
 
-Dashboard, seletor de turno via ?round=1|2, mapa de UFs, detalhes, fotos oficiais, API, mock, cache/worker, adaptador EA11/EA20 e testes estão implementados. Fotos passam exclusivamente pelo backend (TseCandidatePhotos), com cache de 24h e fallback de inicial na UI. Municípios, Redis, SSE/WebSocket, banco, histórico, deploy e testes de carga não estão implementados.
+Dashboard, seletor de turno via ?round=1|2, mapa de UFs, detalhes, fotos oficiais, API, mock, cache/worker, adaptador EA11/EA20 e testes estão implementados. Fotos passam exclusivamente pelo backend (TseCandidatePhotos), com cache de 24h e fallback de inicial na UI. Deploy usa Dockerfile.vercel, Angular servido em wwwroot pela API e PORT=8080. Municípios, Redis, SSE/WebSocket, banco, histórico e testes de carga não estão implementados. Vercel pode criar/encerrar réplicas; não prometer coleta única global ou worker contínuo enquanto cache/agenda forem por processo.
 
 Modo real exige validação do arquivo da eleição desejada; teste de primeiro turno não comprova segundo turno. Fuso de geração TSE é hipótese configurável, documentada. Cache é por processo e publica somente coletas completas de Brasil/UFs. Registro da licença específica da geometria ainda precisa de confirmação.
 

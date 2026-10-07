@@ -1,0 +1,16 @@
+.git
+.tools
+tmp
+docs/images
+**/node_modules
+**/dist
+**/.angular
+**/bin
+**/obj
+**/TestResults
+**/.env
+**/.env.*
+**/*.pfx
+**/*.p12
+**/*.key
+**/*.log
