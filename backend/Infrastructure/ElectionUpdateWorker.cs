@@ -6,8 +6,13 @@ using Microsoft.Extensions.Options;
 namespace Election.Infrastructure;
 
 public sealed class ElectionUpdateWorker(IElectionProvider provider, IElectionCache cache,
-    IOptions<ElectionOptions> options, ILogger<ElectionUpdateWorker> logger) : BackgroundService
+    IOptions<ElectionOptions> options, ILogger<ElectionUpdateWorker> logger, ElectionWarmup warmup) : BackgroundService
 {
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        warmup.Begin();
+        return base.StartAsync(cancellationToken);
+    }
     public async Task<bool> RefreshAsync(CancellationToken cancellationToken, int round = 2)
     {
         try
@@ -33,11 +38,12 @@ public sealed class ElectionUpdateWorker(IElectionProvider provider, IElectionCa
         while (!stoppingToken.IsCancellationRequested)
         {
             // One scheduler keeps outbound calls sequential, with independent deadlines/backoff.
-            foreach (var round in new[] { 2, 1 })
+            foreach (var round in new[] { 1, 2 })
             {
                 if (DateTimeOffset.UtcNow < nextRefresh[round]) continue;
                 var startedAt = DateTimeOffset.UtcNow;
                 var success = await RefreshAsync(stoppingToken, round);
+                if (round == 1) warmup.Complete();
                 var settings = options.Value.ForRound(round);
                 // Target start-to-start cadence; never overlap or replay missed cycles.
                 nextRefresh[round] = success

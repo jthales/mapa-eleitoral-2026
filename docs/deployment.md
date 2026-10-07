@@ -21,3 +21,7 @@ O worker/cache continua por processo. Cada réplica pode executar sua própria c
 Antes de usar como infraestrutura para alto tráfego durante a apuração: adotar armazenamento/cache compartilhado e coordenação de coleta, verificar execução do agendador e medir latência/carga. Não foi contratado serviço pago nem configurado Redis nesta entrega.
 
 Fontes: [Container Images](https://vercel.com/docs/functions/container-images), [ASP.NET Core com Docker](https://vercel.com/kb/guide/dot-net-asp-net-on-vercel-with-docker).
+
+## Recuperação na inicialização
+
+A API aguarda até 25s pela primeira coleta do worker antes de responder sem snapshot. Turno 1 tem prioridade, também permitindo a projeção de classificados do segundo. O navegador repete falhas transitórias duas vezes com intervalo de 3s. Falhas prolongadas ainda retornam indisponibilidade; último snapshot válido continua preservado durante a vida da instância. Essa melhoria não resolve perda de cache em reinícios.

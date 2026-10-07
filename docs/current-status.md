@@ -73,3 +73,10 @@
 
 ## Next recommended task
 - Adotar coordenação de coleta/cache compartilhado e medir cold start/carga na hospedagem. Revalidar EA20 do segundo turno, confirmar fuso e fechar licença específica da geometria.
+
+## Correção de inicialização — 2026-10-07
+- API aguarda até 25s pela primeira tentativa do worker quando não há snapshot, sem iniciar coleta por requisição. Cancelar um visitante não cancela a coleta ou a espera dos demais.
+- Worker prioriza primeiro turno, que também fornece os classificados oficiais. Falha/backoff seguem preservados; espera não garante disponibilidade em falha prolongada do TSE.
+- Frontend repete falhas transitórias 0/502/503/504 duas vezes com 3s de intervalo, mantendo carregamento; 400 não é repetido. Erro final continua explícito, sem fabricar dados.
+- Validação: 18 testes backend, 14 frontend e build Angular aprovados. Integração cobre requisições concorrentes na API fria; testes cobrem cancelamento, limite de espera e recuperação no cliente.
+- Cache compartilhado continua pendente; esta correção reduz falhas durante cold start, não fornece persistência entre réplicas.

@@ -234,3 +234,7 @@ TSE confirma 100 requisições/s/IP, com possível bloqueio por excesso ou 404 r
 Accepted — 2026-10-07, por solicitação do usuário. Usar Container Images (beta) no plano Hobby, preservando a stack: build Angular/Node 24 e publish .NET 10 em Dockerfile.vercel; ASP.NET serve wwwroot e API na mesma origem. Projeto conectado ao GitHub privado, branch main. PORT=8080; /health/live separado da saúde dos snapshots; fallback SPA não encobre 404 de /api/.
 
 Build remoto e acesso público foram verificados. Esta decisão é de hospedagem inicial, não resolve coordenação de réplicas: cache e worker continuam por instância e podem desaparecer com scale down. A independência entre visitantes e chamadas TSE registrada anteriormente vale dentro de cada instância; autoscaling pode multiplicar coletas. Redis/coordenação e validação de coleta contínua permanecem pendentes. Nenhum plano pago contratado. Fontes e procedimento em deployment.md.
+
+## ADR-016 - Aguardar a coleta inicial em instâncias frias
+
+Accepted — 2026-10-07. Em resposta a indisponibilidade frequente após publicação, priorizar turno 1 na agenda e aguardar até 25s sua primeira tentativa nas requisições eleitorais sem cache. ElectionWarmup é singleton; só o worker coleta, e timeout/cancelamento do visitante não cancelam o worker. Falha ao final preserva HTTP 503. Cliente repete somente falhas transitórias duas vezes, com 3s de intervalo; não inventa snapshot nem mistura turnos. A espera mantém uma requisição ativa durante warmup na hospedagem, mas não substitui cache persistente ou coordenação de réplicas.

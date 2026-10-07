@@ -35,12 +35,29 @@ builder.Services.AddHttpClient("Tse", (sp, client) =>
 builder.Services.AddSingleton<MockElectionProvider>();
 builder.Services.AddSingleton<TseElectionProvider>();
 builder.Services.AddSingleton<IElectionProvider, ConfiguredElectionProvider>();
+builder.Services.AddSingleton<ElectionWarmup>();
 builder.Services.AddHostedService<ElectionUpdateWorker>();
 
 var app = builder.Build();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseExceptionHandler();
+app.Use(async (context, next) =>
+{
+    // Keep a cold instance active while its existing worker prepares the shared snapshot.
+    // Invalid round queries retain their immediate 400 response.
+    var roundText = context.Request.Query["round"].ToString();
+    if (context.Request.Path.StartsWithSegments("/api/election") &&
+        (roundText.Length == 0 || roundText is "1" or "2"))
+    {
+        var cache = context.RequestServices.GetRequiredService<IElectionCache>();
+        var round = roundText == "1" ? 1 : 2;
+        if (cache.Read(round) is null && cache.Read(1) is null)
+            await context.RequestServices.GetRequiredService<ElectionWarmup>()
+                .WaitAsync(TimeSpan.FromSeconds(25), context.RequestAborted);
+    }
+    await next(context);
+});
 app.Use(async (context, next) =>
 {
     context.Response.Headers.CacheControl = "no-store";

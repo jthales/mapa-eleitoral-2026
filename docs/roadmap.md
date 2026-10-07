@@ -73,3 +73,5 @@
 - [ ] Histórico e análises geográficas.
 
 Ao concluir tarefa relevante, atualizar este arquivo e current-status.md; novas decisões em decisions.md.
+
+- [x] Reduzir indisponibilidade no cold start: esperar brevemente pelo worker, priorizar turno 1 e repetir falhas transitórias no cliente (2026-10-07).

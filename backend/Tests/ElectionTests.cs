@@ -105,7 +105,7 @@ public class ElectionTests
         Assert.True(cache.Read()!.IsStale);
         cache.Store(snapshot with { FetchedAt = clock.Now });
         Assert.False(cache.Read()!.IsStale);
-        var worker = new ElectionUpdateWorker(new FailingProvider(), cache, Options, NullLogger<ElectionUpdateWorker>.Instance);
+        var worker = new ElectionUpdateWorker(new FailingProvider(), cache, Options, NullLogger<ElectionUpdateWorker>.Instance, new ElectionWarmup());
         Assert.False(await worker.RefreshAsync(default));
         Assert.True(cache.Read()!.IsStale);
         Assert.Equal(snapshot.Brazil, cache.Read()!.Snapshot.Brazil);
@@ -166,7 +166,7 @@ public class ElectionTests
         cache.Store(await provider.FetchAsync(default, 1));
         Assert.Equal(1, cache.Read(1)!.Snapshot.Brazil.Round);
         Assert.Equal(2, cache.Read()!.Snapshot.Brazil.Round);
-        var worker = new ElectionUpdateWorker(new FailingProvider(), cache, Options, NullLogger<ElectionUpdateWorker>.Instance);
+        var worker = new ElectionUpdateWorker(new FailingProvider(), cache, Options, NullLogger<ElectionUpdateWorker>.Instance, new ElectionWarmup());
         Assert.False(await worker.RefreshAsync(default, 1));
         Assert.True(cache.Read(1)!.IsStale);
         Assert.False(cache.Read(2)!.IsStale);
