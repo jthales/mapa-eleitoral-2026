@@ -1,0 +1,4 @@
+* text=auto
+# Preserve downloaded source fixtures exactly as received.
+backend/Tests/Fixtures/*.json -text -whitespace
+frontend/public/maps/*.geojson -text

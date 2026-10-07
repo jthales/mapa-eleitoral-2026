@@ -1,0 +1,179 @@
+<app-election-round-selector [round]="round()" />
+<app-election-header
+  [candidatesOnly]="!!election()?.candidatesOnly"
+  [round]="round()"
+  [status]="election()?.status ?? 'not_started'"
+  [updatedAt]="election()?.updatedAt ?? null"
+  [source]="election()?.source ?? null"
+  [stale]="!!election() && stale()"
+/>
+@if (loading() && !election()) {
+  <div class="empty-state" role="status">
+    <span class="loader"></span>
+    <h2>Consultando a apuração</h2>
+    <p>Aguarde enquanto buscamos os dados.</p>
+  </div>
+} @else if (!election()) {
+  <div class="empty-state" role="alert">
+    <span class="empty-symbol">↻</span>
+    <h2>Dados ainda indisponíveis</h2>
+    <p>Não foi possível obter um resultado válido. Tente novamente em instantes.</p>
+    <button class="button" (click)="retry()">Tentar novamente</button>
+  </div>
+} @else {
+  @if (!election()!.candidatesOnly) {
+    <app-election-progress
+      [percentage]="election()!.processedPercentage ?? 0"
+      [processed]="election()!.processedSections ?? 0"
+      [total]="election()!.totalSections ?? 0"
+    />
+  }
+  <div class="section-heading">
+    <h2>{{ election()!.candidatesOnly ? 'Candidatos ao 2º turno' : 'Resultado nacional' }}</h2>
+    <span>{{
+      election()!.candidatesOnly
+        ? 'Classificação oficial do 1º turno'
+        : 'Votos computados aos candidatos'
+    }}</span>
+  </div>
+  @if (!election()!.votesReleased && !election()!.candidatesOnly) {
+    <p class="notice warning">A votação ainda não foi liberada para divulgação pelo TSE.</p>
+  }
+  <div class="candidate-grid" id="national-candidates">
+    @for (candidate of visibleCandidates(); track candidate.id) {
+      <app-candidate-result-card
+        [candidate]="candidate"
+        [color]="colors()[candidate.id]"
+        [firstRoundSummary]="round() === 1 || !!election()!.candidatesOnly"
+      />
+    }
+  </div>
+  @if (rankedCandidates().length > 4) {
+    <div class="candidate-list-controls">
+      <span
+        >Exibindo {{ visibleCandidates().length }} de
+        {{ rankedCandidates().length }} candidatos</span
+      >
+      <button
+        class="button"
+        aria-controls="national-candidates"
+        [attr.aria-expanded]="showAllCandidates()"
+        (click)="showAllCandidates.set(!showAllCandidates())"
+      >
+        {{
+          showAllCandidates()
+            ? 'Mostrar menos'
+            : 'Mostrar mais (' + (rankedCandidates().length - 4) + ')'
+        }}
+      </button>
+    </div>
+  }
+  <section class="map-section">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">UM OLHAR PELO TERRITÓRIO</p>
+        <h2>A apuração no mapa</h2>
+      </div>
+      <span class="count-tag">26 estados + DF</span>
+    </div>
+    <app-brazil-map
+      [national]="election()"
+      [states]="states()"
+      [colors]="colors()"
+      [status]="states().length ? 'loaded' : 'no-data'"
+    />
+  </section>
+  <section class="states-section">
+    <div class="section-heading">
+      <h2>Resultados por estado</h2>
+      <label class="search"
+        ><span aria-hidden="true">⌕</span
+        ><input
+          aria-label="Buscar estado"
+          placeholder="Buscar estado ou UF"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+      /></label>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Estado</th>
+            <th>
+              {{
+                election()!.status === 'completed' ? 'Mais votado na UF' : 'Liderança momentânea'
+              }}
+            </th>
+            <th>Margem</th>
+            <th>Apuração</th>
+            <th><span class="sr-only">Detalhes</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (state of visibleStates(); track state.uf) {
+            <tr>
+              <td>
+                <a [routerLink]="['/states', state.uf]" queryParamsHandling="preserve"
+                  ><span class="uf-tag">{{ state.uf }}</span
+                  >{{ state.name }}</a
+                >
+              </td>
+              <td>
+                <span
+                  class="inline-dot"
+                  [style.background]="
+                    state.leadingCandidateId ? colors()[state.leadingCandidateId] : '#b8c0c3'
+                  "
+                ></span
+                >{{ state.hasData ? leader(state) : 'Sem dados de votação' }}
+              </td>
+              <td>
+                {{
+                  state.hasData
+                    ? (state.marginPercentagePoints | number: '1.2-2' : 'pt-BR') + ' p.p.'
+                    : '—'
+                }}
+              </td>
+              <td>
+                <span class="table-progress"
+                  ><span [style.width.%]="state.processedPercentage"></span></span
+                >{{
+                  state.processedPercentage === null
+                    ? '—'
+                    : (state.processedPercentage | number: '1.2-2' : 'pt-BR') + '%'
+                }}
+              </td>
+              <td>
+                <a
+                  [routerLink]="['/states', state.uf]"
+                  queryParamsHandling="preserve"
+                  [attr.aria-label]="'Ver detalhes de ' + state.name"
+                  >↗</a
+                >
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5">Nenhum estado encontrado.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+}
+<div class="source-line">
+  <span
+    >Fonte:
+    <a
+      href="https://www.tse.jus.br/eleicoes/informacoes-tecnicas-sobre-a-divulgacao-de-resultados"
+      target="_blank"
+      rel="noopener noreferrer"
+      >Tribunal Superior Eleitoral ↗</a
+    >
+    @if (election()?.source === 'mock') {
+      <strong> · Demonstração com dados fictícios</strong>
+    }</span
+  ><span>Atualização automática a cada {{ pollingSeconds() }} segundos</span>
+</div>

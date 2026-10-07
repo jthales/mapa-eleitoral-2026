@@ -1,0 +1,114 @@
+<div class="map-layout" (focusout)="clearFocus($event)">
+  <div class="map-canvas">
+    @if (mapError() || status() === 'error') {
+      <p class="map-message" role="alert">
+        O mapa não pôde ser carregado. Consulte os estados na lista abaixo.
+      </p>
+    } @else if (!shapes().length || status() === 'loading') {
+      <p class="map-message" role="status">Carregando mapa…</p>
+    } @else {
+      @if (status() === 'no-data') {
+        <p class="map-message">Aguardando dados eleitorais.</p>
+      }
+      <svg viewBox="0 0 620 590" aria-labelledby="map-title" role="group">
+        <title id="map-title">Mapa do Brasil. Selecione uma UF para consultar seus detalhes.</title>
+        @for (shape of shapes(); track shape.uf) {
+          <a
+            queryParamsHandling="preserve"
+            [routerLink]="['/states', shape.uf]"
+            [attr.aria-label]="shape.name + ' — ver detalhes'"
+            (mouseenter)="selected.set(shape.uf)"
+            (mouseleave)="selected.set(null)"
+            (focusin)="selected.set(shape.uf)"
+          >
+            <path
+              [attr.d]="shape.path"
+              [attr.fill]="fill(shape.uf)"
+              [class.selected]="selected() === shape.uf"
+            >
+              <title>{{ shape.name }}</title>
+            </path>
+            <text
+              [attr.x]="shape.x"
+              [attr.y]="shape.y"
+              [class.no-data-label]="!byUf().get(shape.uf)?.leadingCandidateId"
+            >
+              {{ shape.uf }}
+            </text>
+          </a>
+        }
+      </svg>
+    }
+    <div class="map-caption">
+      <span aria-hidden="true">↖</span> Passe o mouse ou selecione um estado
+    </div>
+  </div>
+  <aside class="map-info" aria-live="polite">
+    <p class="eyebrow">EXPLORE O MAPA</p>
+    @if (panelResult(); as result) {
+      <h3>
+        {{ hovered()?.name ?? 'Brasil' }} <span>{{ hovered()?.uf ?? 'BR' }}</span>
+      </h3>
+      <p class="info-subtitle">
+        {{
+          result.hasData
+            ? hovered()
+              ? 'Resultado na UF'
+              : 'Resultado nacional'
+            : 'Aguardando dados de votação'
+        }}
+      </p>
+      @for (candidate of rankedCandidates(); track candidate.id) {
+        <div class="map-candidate">
+          <span><i [style.background]="colors()[candidate.id]"></i>{{ candidate.name }}</span
+          ><strong>{{
+            candidate.percentage === null
+              ? '—'
+              : (candidate.percentage | number: '1.2-2' : 'pt-BR') + '%'
+          }}</strong>
+        </div>
+      }
+      <div class="map-metric">
+        <span>Apuração</span
+        ><strong>{{
+          result.processedPercentage === null
+            ? '—'
+            : (result.processedPercentage | number: '1.2-2' : 'pt-BR') + '%'
+        }}</strong>
+      </div>
+      <div class="map-metric">
+        <span>Margem</span
+        ><strong>{{
+          result.hasData ? (margin() | number: '1.2-2' : 'pt-BR') + ' p.p.' : '—'
+        }}</strong>
+      </div>
+      @if (hovered(); as state) {
+        <a class="detail-link" queryParamsHandling="preserve" [routerLink]="['/states', state.uf]"
+          >Ver detalhes do estado <span>↗</span></a
+        >
+      }
+    } @else {
+      <h3>Cada estado,<br />um retrato da apuração.</h3>
+      <p class="intro-copy">
+        Explore os resultados e o andamento da totalização nas 27 unidades da federação.
+      </p>
+      <div class="map-hint" aria-hidden="true">↖</div>
+    }
+    <div class="map-legend">
+      <p><i class="neutral"></i>Sem dados ou empate</p>
+      <small
+        >As cores seguem os partidos e indicam a liderança em votos na UF. Não representam
+        vitória.</small
+      >
+    </div>
+  </aside>
+</div>
+<p class="geo-source">
+  Geometria: IBGE · mapa simplificado de UFs ·
+  <a
+    href="https://servicodados.ibge.gov.br/api/docs/malhas?versao=3"
+    target="_blank"
+    rel="noopener noreferrer"
+    >Sobre a malha ↗</a
+  >
+</p>
