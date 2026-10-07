@@ -80,3 +80,7 @@
 - Frontend repete falhas transitórias 0/502/503/504 duas vezes com 3s de intervalo, mantendo carregamento; 400 não é repetido. Erro final continua explícito, sem fabricar dados.
 - Validação: 18 testes backend, 14 frontend e build Angular aprovados. Integração cobre requisições concorrentes na API fria; testes cobrem cancelamento, limite de espera e recuperação no cliente.
 - Cache compartilhado continua pendente; esta correção reduz falhas durante cold start, não fornece persistência entre réplicas.
+
+## Crédito no rodapé — 2026-10-07
+- Rodapé global inclui Desenvolvido por Thales Silva, GitHub jthales e LinkedIn thaleshenrique38, conforme solicitação. Links externos abrem nova aba com noopener/noreferrer.
+- Arquivos: frontend/src/app/app.ts e frontend/src/styles.scss. Build Angular aprovado; Chromium verificou nomes/URLs e ausência de overflow em 1440px e 390px. Sem mudança no backend.

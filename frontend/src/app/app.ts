@@ -24,8 +24,24 @@ import { RouterLink, RouterOutlet } from '@angular/router';
     </header>
     <main id="main" class="shell"><router-outlet /></main>
     <footer class="shell site-footer">
-      <span>Mapa Eleitoral 2026 <span class="muted">/ Informação para acompanhar.</span></span>
-      <span>Sem previsões. Sem recomendações políticas.</span>
+      <div class="footer-about">
+        <span>Mapa Eleitoral 2026 <span class="muted">/ Informação para acompanhar.</span></span>
+        <span>Sem previsões. Sem recomendações políticas.</span>
+      </div>
+      <div class="footer-credit">
+        <span>Desenvolvido por <strong>Thales Silva</strong></span>
+        <nav class="footer-links" aria-label="Redes de Thales Silva">
+          <a href="https://github.com/jthales" target="_blank" rel="noopener noreferrer"
+            >GitHub ↗</a
+          >
+          <a
+            href="https://www.linkedin.com/in/thaleshenrique38/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >LinkedIn ↗</a
+          >
+        </nav>
+      </div>
     </footer>`,
 })
 export class App {}

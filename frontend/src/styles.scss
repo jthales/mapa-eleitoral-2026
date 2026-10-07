@@ -522,6 +522,25 @@ tr:hover td {
   font-size: 10px;
   color: var(--muted);
 }
+.footer-about,
+.footer-credit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.footer-credit strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-size: 12px;
+}
+.footer-links a {
+  text-underline-offset: 3px;
+}
 .muted {
   color: var(--muted);
 }
