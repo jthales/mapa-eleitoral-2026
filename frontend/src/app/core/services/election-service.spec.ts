@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ElectionService } from './election-service';
 import { vi } from 'vitest';
+import { StateElectionResult } from '../models/election';
 
 describe('ElectionService', () => {
   let http: HttpTestingController;
@@ -67,5 +68,27 @@ describe('ElectionService', () => {
     service.getState('XX').subscribe({ error: (e) => (status = e.status) });
     http.expectOne('/api/election/states/XX').flush({}, { status: 400, statusText: 'Bad Request' });
     expect(status).toBe(400);
+  });
+  it('reuses map data by UF and round, marks old data stale and refreshes details', () => {
+    vi.useFakeTimers();
+    const state = {
+      uf: 'AM',
+      round: 1,
+      dataStatus: 'fresh',
+      candidates: [],
+    } as unknown as StateElectionResult;
+    service.getStates(1).subscribe();
+    http.expectOne('/api/election/states?round=1').flush([state]);
+    expect(service.cachedState('am', 1)).toEqual(state);
+    expect(service.cachedState('AM', 2)).toBeNull();
+    expect(service.cachedState('SP', 1)).toBeNull();
+    vi.advanceTimersByTime(30000);
+    expect(service.cachedState('AM', 1)?.dataStatus).toBe('stale');
+    service.getState('AM', 1).subscribe();
+    expect(service.cachedState('AM', 1)).not.toBeNull();
+    http
+      .expectOne('/api/election/states/AM?round=1')
+      .flush({ result: state, municipalitiesAvailable: false });
+    expect(service.cachedState('AM', 1)?.dataStatus).toBe('fresh');
   });
 });

@@ -84,3 +84,9 @@
 ## Crédito no rodapé — 2026-10-07
 - Rodapé global inclui Desenvolvido por Thales Silva, GitHub jthales e LinkedIn thaleshenrique38, conforme solicitação. Links externos abrem nova aba com noopener/noreferrer.
 - Arquivos: frontend/src/app/app.ts e frontend/src/styles.scss. Build Angular aprovado; Chromium verificou nomes/URLs e ausência de overflow em 1440px e 390px. Sem mudança no backend.
+
+## Navegação para UF — 2026-10-07
+- ElectionService guarda em memória do navegador os últimos resultados por UF/turno recebidos pela lista e pelo detalhe. StateDetails exibe esse resultado imediatamente e revalida pela API; falhas mantêm conteúdo com aviso. Cache anterior ao intervalo de polling é marcado stale ao reutilizar.
+- Detalhe ordena candidatos por percentual decrescente, votos e nome como desempate, sem alterar o array da resposta.
+- 15 testes frontend e build aprovados. Chromium verificou navegação para AM com requisição de detalhe bloqueada: renderização imediata, ordem correta e mobile sem overflow. Para o teste local, APIs foram interceptadas com respostas obtidas da aplicação publicada porque o proxy local retornou 502.
+- Cache do navegador não persiste ao recarregar a página; acesso direto ainda depende da API/cache por instância. Redis/coordenação continuam pendentes.

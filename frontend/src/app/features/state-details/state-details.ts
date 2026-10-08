@@ -65,7 +65,7 @@ import {
         </p>
       </section>
       <div class="candidate-grid">
-        @for (candidate of s.candidates; track candidate.id) {
+        @for (candidate of rankedCandidates(); track candidate.id) {
           <app-candidate-result-card
             [candidate]="candidate"
             [color]="colors()[candidate.id]"
@@ -101,6 +101,14 @@ export class StateDetailsComponent {
   readonly state = signal<StateElectionResult | null>(null);
   readonly failed = signal(false);
   readonly colors = computed(() => candidateColors(this.state()?.candidates ?? []));
+  readonly rankedCandidates = computed(() =>
+    [...(this.state()?.candidates ?? [])].sort(
+      (a, b) =>
+        (b.percentage ?? -1) - (a.percentage ?? -1) ||
+        (b.votes ?? -1) - (a.votes ?? -1) ||
+        a.name.localeCompare(b.name, 'pt-BR'),
+    ),
+  );
   constructor() {
     combineLatest([this.route.paramMap, this.route.queryParamMap])
       .pipe(
@@ -111,7 +119,7 @@ export class StateDetailsComponent {
         distinctUntilChanged((a, b) => a.uf === b.uf && a.round === b.round),
         switchMap(({ uf, round }) => {
           this.round.set(round);
-          this.state.set(null);
+          this.state.set(this.service.cachedState(uf, round));
           this.failed.set(false);
           return timer(0, electionPollingInterval(round)).pipe(
             exhaustMap(() =>
