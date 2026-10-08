@@ -60,12 +60,19 @@
       </p>
       @for (candidate of rankedCandidates(); track candidate.id) {
         <div class="map-candidate">
-          <span><i [style.background]="colors()[candidate.id]"></i>{{ candidate.name }}</span
-          ><strong>{{
-            candidate.percentage === null
-              ? '—'
-              : (candidate.percentage | number: '1.2-2' : 'pt-BR') + '%'
-          }}</strong>
+          <span><i [style.background]="colors()[candidate.id]"></i>{{ candidate.name }}</span>
+          <div class="map-candidate-values">
+            <strong>{{
+              candidate.percentage === null
+                ? '—'
+                : (candidate.percentage | number: '1.2-2' : 'pt-BR') + '%'
+            }}</strong>
+            <small>{{
+              candidate.votes === null
+                ? 'Votos não divulgados'
+                : (candidate.votes | number: '1.0-0' : 'pt-BR') + ' votos'
+            }}</small>
+          </div>
         </div>
       }
       <div class="map-metric">

@@ -124,4 +124,7 @@ export class ElectionDashboardComponent {
   leader(state: StateElectionResult) {
     return state.candidates.find((c) => c.id === state.leadingCandidateId)?.name ?? 'Sem liderança';
   }
+  leadingCandidate(state: StateElectionResult) {
+    return state.candidates.find((candidate) => candidate.id === state.leadingCandidateId);
+  }
 }

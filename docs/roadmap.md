@@ -79,3 +79,5 @@ Ao concluir tarefa relevante, atualizar este arquivo e current-status.md; novas 
 - [x] Adicionar crédito de Thales Silva e links pessoais GitHub/LinkedIn ao rodapé global (2026-10-07).
 
 - [x] Reaproveitar dados do mapa nos detalhes por UF/turno, revalidar em segundo plano e ordenar candidatos por percentual (2026-10-07).
+
+- [x] Exibir votos absolutos junto aos percentuais no painel do mapa e tabela de UFs; abrir navegações no topo no desktop/mobile (2026-10-07).

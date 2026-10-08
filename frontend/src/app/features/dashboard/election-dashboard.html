@@ -127,6 +127,14 @@
                   "
                 ></span
                 >{{ state.hasData ? leader(state) : 'Sem dados de votação' }}
+                @if (state.hasData && leadingCandidate(state); as candidate) {
+                  @if (candidate.votes !== null && candidate.percentage !== null) {
+                    <small class="table-votes"
+                      >{{ candidate.votes | number: '1.0-0' : 'pt-BR' }} votos ·
+                      {{ candidate.percentage | number: '1.2-2' : 'pt-BR' }}%</small
+                    >
+                  }
+                }
               </td>
               <td>
                 {{

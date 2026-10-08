@@ -90,3 +90,9 @@
 - Detalhe ordena candidatos por percentual decrescente, votos e nome como desempate, sem alterar o array da resposta.
 - 15 testes frontend e build aprovados. Chromium verificou navegação para AM com requisição de detalhe bloqueada: renderização imediata, ordem correta e mobile sem overflow. Para o teste local, APIs foram interceptadas com respostas obtidas da aplicação publicada porque o proxy local retornou 502.
 - Cache do navegador não persiste ao recarregar a página; acesso direto ainda depende da API/cache por instância. Redis/coordenação continuam pendentes.
+
+## Votos absolutos e navegação — 2026-10-07
+- Painel do mapa apresenta percentual e votos absolutos por candidato no hover/foco da UF e no resumo do Brasil. Valores null permanecem não divulgados, sem converter para zero.
+- Tabela de UFs mostra votos/percentual do líder abaixo do nome. Cards nacionais e estaduais já mostravam ambos e foram preservados.
+- Router usa withInMemoryScrolling com scrollPositionRestoration=top para abrir navegações no topo, inclusive no celular.
+- Build Angular e 15 testes aprovados. Chromium com respostas controladas da API verificou valores exatos no painel, retorno ao Brasil, tabela, navegação móvel desde o fim da página com scrollY=0 e ausência de overflow.
