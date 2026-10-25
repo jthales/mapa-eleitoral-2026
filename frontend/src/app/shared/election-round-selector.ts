@@ -38,6 +38,21 @@ import { RouterLink } from '@angular/router';
         outline: 3px solid #776ac3;
         outline-offset: 3px;
       }
+      @media (max-width: 540px) {
+        .round-selector {
+          display: inline-flex;
+          gap: 2px;
+          margin: 16px 0 0;
+          padding: 3px;
+          border: 1px solid #d3dcd9;
+          border-radius: 20px;
+        }
+        a {
+          padding: 5px 14px;
+          border: 0;
+          font-size: 12px;
+        }
+      }
     `,
   ],
 })
