@@ -26,6 +26,8 @@ export class BrazilMapComponent {
   readonly shapes = signal<StateShape[]>([]);
   readonly mapError = signal(false);
   readonly selected = signal<string | null>(null);
+  // Touch screens: a tap only selects the state inline instead of opening its page.
+  readonly touch = typeof matchMedia === 'function' && matchMedia('(hover: none)').matches;
   readonly hovered = computed(() => this.states().find((s) => s.uf === this.selected()));
   readonly panelResult = computed(() => this.hovered() ?? this.national());
   readonly rankedCandidates = computed(() =>
@@ -40,6 +42,12 @@ export class BrazilMapComponent {
     if (!first || !second || first.votes === second.votes) return 0;
     return Math.round(((first.percentage ?? 0) - (second.percentage ?? 0)) * 100) / 100;
   });
+  hover(uf: string | null) {
+    if (!this.touch) this.selected.set(uf);
+  }
+  tap(uf: string) {
+    if (this.touch) this.selected.set(uf);
+  }
   clearFocus(event: FocusEvent) {
     if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) {
       this.selected.set(null);

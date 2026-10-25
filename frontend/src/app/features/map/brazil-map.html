@@ -15,10 +15,12 @@
         @for (shape of shapes(); track shape.uf) {
           <a
             queryParamsHandling="preserve"
-            [routerLink]="['/states', shape.uf]"
+            [routerLink]="touch ? null : ['/states', shape.uf]"
+            [attr.role]="touch ? 'button' : null"
             [attr.aria-label]="shape.name + ' — ver detalhes'"
-            (mouseenter)="selected.set(shape.uf)"
-            (mouseleave)="selected.set(null)"
+            (click)="tap(shape.uf)"
+            (mouseenter)="hover(shape.uf)"
+            (mouseleave)="hover(null)"
             (focusin)="selected.set(shape.uf)"
           >
             <path
