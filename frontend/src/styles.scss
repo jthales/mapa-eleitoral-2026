@@ -345,6 +345,24 @@ h1 {
   margin-left: 3px;
   letter-spacing: -1px;
 }
+.candidate-share {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.candidate-trend {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.candidate-trend.trend-up {
+  color: #24804a;
+}
+.candidate-trend.trend-down {
+  color: #b23b3b;
+}
 .candidate-result > span {
   font-size: 12px;
   color: var(--muted);

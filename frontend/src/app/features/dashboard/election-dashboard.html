@@ -44,6 +44,7 @@
       <app-candidate-result-card
         [candidate]="candidate"
         [color]="colors()[candidate.id]"
+        [trendKey]="'BR-' + round()"
         [firstRoundSummary]="round() === 1 || !!election()!.candidatesOnly"
       />
     }
