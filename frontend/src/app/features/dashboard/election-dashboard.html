@@ -1,4 +1,4 @@
-<app-election-round-selector [round]="round()" />
+<app-election-round-selector class="round-top" [round]="round()" />
 <app-election-header
   [candidatesOnly]="!!election()?.candidatesOnly"
   [round]="round()"
@@ -171,6 +171,10 @@
     </div>
   </section>
 }
+<section class="round-bottom" aria-label="Consultar outro turno">
+  <p class="eyebrow">CONSULTAR OUTRO TURNO</p>
+  <app-election-round-selector [round]="round()" />
+</section>
 <div class="source-line">
   <span
     >Fonte:
