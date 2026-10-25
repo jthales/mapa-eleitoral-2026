@@ -31,4 +31,29 @@ describe('BrazilMapComponent', () => {
       'lista abaixo',
     );
   });
+  it('on touch screens a tap shows the state inline instead of opening its page', async () => {
+    const original = globalThis.matchMedia;
+    globalThis.matchMedia = ((query: string) => ({ matches: query === '(hover: none)' })) as never;
+    try {
+      const fixture = TestBed.createComponent(BrazilMapComponent);
+      fixture.componentRef.setInput('states', [
+        { uf: 'SP', name: 'São Paulo', hasData: false, candidates: [] },
+      ]);
+      TestBed.inject(HttpTestingController)
+        .expectOne('/maps/brazil-states.json')
+        .flush([{ uf: 'SP', name: 'São Paulo', path: 'M0,0L10,0L10,10Z', x: 5, y: 5 }]);
+      fixture.componentRef.setInput('status', 'loaded');
+      await fixture.whenStable();
+      const link: HTMLElement = fixture.nativeElement.querySelector('svg a');
+      expect(link.getAttribute('href')).toBeNull();
+      link.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      link.dispatchEvent(new MouseEvent('mouseleave'));
+      await fixture.whenStable();
+      expect(fixture.nativeElement.querySelector('.map-info h3').textContent).toContain(
+        'São Paulo',
+      );
+    } finally {
+      globalThis.matchMedia = original;
+    }
+  });
 });
