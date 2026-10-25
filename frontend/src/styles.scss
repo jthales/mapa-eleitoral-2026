@@ -743,6 +743,26 @@ tr:hover td {
   .progress-summary > span {
     font-size: 11px;
   }
+  /* Dashboard no mobile: título, eyebrow e subtítulo ficam só para leitores de tela. */
+  app-election-dashboard .page-heading {
+    padding: 14px 0 20px;
+    gap: 10px;
+  }
+  app-election-dashboard .page-heading .eyebrow,
+  app-election-dashboard .page-heading h1,
+  app-election-dashboard .page-heading .subtitle,
+  app-election-dashboard .map-section .eyebrow {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  app-election-dashboard .update-meta p {
+    margin-top: 8px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   *,
