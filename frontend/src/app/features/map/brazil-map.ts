@@ -14,6 +14,7 @@ interface StateShape {
 }
 @Component({
   selector: 'app-brazil-map',
+  host: { '(document:click)': 'tapOutside($event)' },
   imports: [DecimalPipe, RouterLink],
   templateUrl: './brazil-map.html',
   styleUrl: './brazil-map.scss',
@@ -47,6 +48,12 @@ export class BrazilMapComponent {
   }
   tap(uf: string) {
     if (this.touch) this.selected.set(uf);
+  }
+  // Tapping anywhere but a state goes back to the national result.
+  tapOutside(event: Event) {
+    if (this.touch && !(event.target as Element | null)?.closest?.('svg a')) {
+      this.selected.set(null);
+    }
   }
   clearFocus(event: FocusEvent) {
     if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) {
