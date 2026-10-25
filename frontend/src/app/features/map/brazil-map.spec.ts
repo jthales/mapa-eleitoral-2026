@@ -36,6 +36,7 @@ describe('BrazilMapComponent', () => {
     globalThis.matchMedia = ((query: string) => ({ matches: query === '(hover: none)' })) as never;
     try {
       const fixture = TestBed.createComponent(BrazilMapComponent);
+      fixture.componentRef.setInput('national', { hasData: false, candidates: [] });
       fixture.componentRef.setInput('states', [
         { uf: 'SP', name: 'São Paulo', hasData: false, candidates: [] },
       ]);
@@ -52,6 +53,9 @@ describe('BrazilMapComponent', () => {
       expect(fixture.nativeElement.querySelector('.map-info h3').textContent).toContain(
         'São Paulo',
       );
+      document.body.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await fixture.whenStable();
+      expect(fixture.nativeElement.querySelector('.map-info h3').textContent).toContain('Brasil');
     } finally {
       globalThis.matchMedia = original;
     }
