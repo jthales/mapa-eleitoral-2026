@@ -70,6 +70,7 @@ import {
           <app-candidate-result-card
             [candidate]="candidate"
             [color]="colors()[candidate.id]"
+            [trendKey]="s.uf + '-' + s.round"
             [firstRoundSummary]="!!s.candidatesOnly"
           />
         }
