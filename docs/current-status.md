@@ -1,7 +1,7 @@
 # Current Status
 
 ## Last updated
-2026-10-07
+2026-10-25
 
 ## Working
 - MVP executável: Angular 22.2.1 + CLI/build 22.2.2, TypeScript 6.0.3, .NET 10 (SDK verificado 10.0.401).
@@ -19,6 +19,8 @@
 - Fonte real verificada em consulta única para eleição 6257, turno 1: Brasil e 27 UFs, sem candidatos hardcodados.
 - Documentação atualizada e screenshots em docs/images/dashboard.png e docs/images/first-round.png.
 - Arquivos principais: backend/Api/Program.cs, Application/Contracts.cs, Infrastructure/Tse/, Infrastructure/ElectionUpdateWorker.cs, frontend/src/app/features/ e scripts/generate-map.mjs.
+
+- 2026-10-25 (noite do 2º turno): instância fria coletava o 1º turno antes do 2º e liberava requisições assim que o 1º chegava, servindo a prévia candidatesOnly ("Candidatos ao 2º turno", sem votos). Agora o worker coleta o 2º turno primeiro, o middleware espera o snapshot do turno pedido (até 25s) e, sem snapshot, falha usa backoff de 30s em vez de 600s. Frontend não substitui apuração real por prévia vinda de outra réplica (marca stale) e atualiza ao voltar para a aba, além do polling de 5s.
 
 ## In progress
 - Hospedagem Vercel publicada em https://mapa-eleitoral-2026-omega.vercel.app; configuração e limitações registradas em docs/deployment.md.

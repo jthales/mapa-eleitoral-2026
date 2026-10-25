@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DOCUMENT } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   combineLatest,
@@ -9,11 +9,12 @@ import {
   catchError,
   EMPTY,
   exhaustMap,
+  merge,
   switchMap,
   timer,
 } from 'rxjs';
 import { ElectionService } from '../../core/services/election-service';
-import { electionPollingInterval } from '../../core/services/election-polling';
+import { electionPollingInterval, tabBecameVisible } from '../../core/services/election-polling';
 import { candidateColors, StateElectionResult } from '../../core/models/election';
 import { ElectionHeaderComponent } from '../../shared/election-header';
 import { CandidateResultCardComponent } from '../../shared/candidate-result-card';
@@ -97,6 +98,7 @@ import {
 export class StateDetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly service = inject(ElectionService);
+  private readonly document = inject(DOCUMENT);
   readonly round = signal(2);
   readonly state = signal<StateElectionResult | null>(null);
   readonly failed = signal(false);
@@ -121,7 +123,10 @@ export class StateDetailsComponent {
           this.round.set(round);
           this.state.set(this.service.cachedState(uf, round));
           this.failed.set(false);
-          return timer(0, electionPollingInterval(round)).pipe(
+          return merge(
+            timer(0, electionPollingInterval(round)),
+            tabBecameVisible(this.document),
+          ).pipe(
             exhaustMap(() =>
               this.service.getState(uf, round).pipe(
                 catchError(() => {
@@ -135,6 +140,11 @@ export class StateDetailsComponent {
         takeUntilDestroyed(inject(DestroyRef)),
       )
       .subscribe((details) => {
+        // Keep a real tally on screen if a warming server instance answers with the preview.
+        if (details.result.candidatesOnly && this.state() && !this.state()!.candidatesOnly) {
+          this.failed.set(true);
+          return;
+        }
         this.state.set(details.result);
         this.failed.set(false);
       });
