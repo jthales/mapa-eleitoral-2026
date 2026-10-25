@@ -25,7 +25,11 @@ export class ElectionService {
   }
 
   private rememberState(result: StateElectionResult) {
-    this.stateCache.set(`${result.round}:${result.uf.toUpperCase()}`, {
+    const key = `${result.round}:${result.uf.toUpperCase()}`;
+    // A warming server instance may answer with the preview; never let it replace a real tally.
+    const previous = this.stateCache.get(key)?.result;
+    if (result.candidatesOnly && previous && !previous.candidatesOnly) return;
+    this.stateCache.set(key, {
       result,
       receivedAt: Date.now(),
     });

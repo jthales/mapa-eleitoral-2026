@@ -36,6 +36,31 @@ public class WarmupTests
     }
 
     [Fact]
+    public async Task SecondRoundRequestsWaitForSecondRoundEvenWhenFirstRoundIsCached()
+    {
+        await using var app = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
+            {
+                foreach (var worker in services.Where(d => d.ServiceType == typeof(IHostedService)).ToArray())
+                    services.Remove(worker);
+            }));
+        using var client = app.CreateClient();
+        var warmup = app.Services.GetRequiredService<ElectionWarmup>();
+        var cache = app.Services.GetRequiredService<IElectionCache>();
+        var mock = new MockElectionProvider(TimeProvider.System, Options.Create(new ElectionOptions()));
+        warmup.Begin();
+        cache.Store(await mock.FetchAsync(default, 1));
+        var brazil = client.GetAsync("/api/election?round=2");
+        await Task.Delay(200);
+        Assert.False(brazil.IsCompleted);
+        cache.Store(await mock.FetchAsync(default, 2));
+        warmup.Complete();
+        var response = await brazil;
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.DoesNotContain("\"candidatesOnly\":true", await response.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
     public async Task ConcurrentRequestsWaitForOneWorkerAndCancellationDoesNotCancelWarmup()
     {
         var warmup = new ElectionWarmup();

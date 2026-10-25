@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, inject, signal } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, DOCUMENT } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
@@ -15,7 +15,7 @@ import {
   timer,
 } from 'rxjs';
 import { ElectionService } from '../../core/services/election-service';
-import { electionPollingInterval } from '../../core/services/election-polling';
+import { electionPollingInterval, tabBecameVisible } from '../../core/services/election-polling';
 import { candidateColors, ElectionResult, StateElectionResult } from '../../core/models/election';
 import { ElectionHeaderComponent } from '../../shared/election-header';
 import { ElectionProgressComponent } from '../../shared/election-progress';
@@ -43,6 +43,7 @@ import {
 export class ElectionDashboardComponent {
   private readonly service = inject(ElectionService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly document = inject(DOCUMENT);
   private readonly refresh = new Subject<void>();
   readonly round = signal(2);
   readonly pollingSeconds = computed(() => electionPollingInterval(this.round()) / 1000);
@@ -93,7 +94,11 @@ export class ElectionDashboardComponent {
           this.states.set([]);
           this.failed.set(false);
           this.loading.set(true);
-          return merge(timer(0, electionPollingInterval(round)), this.refresh).pipe(
+          return merge(
+            timer(0, electionPollingInterval(round)),
+            this.refresh,
+            tabBecameVisible(this.document),
+          ).pipe(
             exhaustMap(() =>
               forkJoin({
                 election: this.service.getElection(round),
@@ -111,6 +116,13 @@ export class ElectionDashboardComponent {
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(({ election, states }) => {
+        // Another server instance may still be warming up and answer with the candidate preview.
+        // Keep the real tally already on screen and flag it as stale instead of erasing it.
+        if (election.candidatesOnly && this.election() && !this.election()!.candidatesOnly) {
+          this.failed.set(true);
+          this.loading.set(false);
+          return;
+        }
         this.election.set(election);
         this.states.set(states);
         this.failed.set(false);

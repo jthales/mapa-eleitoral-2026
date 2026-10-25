@@ -52,7 +52,9 @@ app.Use(async (context, next) =>
     {
         var cache = context.RequestServices.GetRequiredService<IElectionCache>();
         var round = roundText == "1" ? 1 : 2;
-        if (cache.Read(round) is null && cache.Read(1) is null)
+        // Waiting only while both rounds were empty let round-2 requests receive the candidate preview
+        // as soon as round 1 arrived, before the live round-2 snapshot existed.
+        if (cache.Read(round) is null)
             await context.RequestServices.GetRequiredService<ElectionWarmup>()
                 .WaitAsync(TimeSpan.FromSeconds(25), context.RequestAborted);
     }
