@@ -717,11 +717,28 @@ tr:hover td {
     flex-direction: row;
     align-items: baseline;
   }
+  .candidate-grid {
+    gap: 10px;
+  }
+  .candidate-result {
+    margin: 10px 0;
+  }
   .candidate-result strong {
-    font-size: 38px;
+    font-size: 32px;
+    letter-spacing: -1.5px;
+  }
+  .candidate-result strong span {
+    font-size: 19px;
   }
   .candidate-card {
-    padding: 22px;
+    padding: 14px 16px;
+  }
+  .candidate-avatar {
+    width: 44px;
+    height: 44px;
+  }
+  .candidate-top h3 {
+    margin-bottom: 2px;
   }
   .section-heading {
     align-items: flex-start;
@@ -772,7 +789,9 @@ tr:hover td {
     padding: 0;
   }
   app-election-dashboard .progress-panel {
-    margin-top: 18px;
+    gap: 12px;
+    padding: 16px 0;
+    margin: 14px 0 22px;
   }
   app-election-dashboard .page-heading .eyebrow,
   app-election-dashboard .page-heading h1,
